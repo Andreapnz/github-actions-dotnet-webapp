@@ -1,0 +1,63 @@
+name: Build/Teste para Projeto .NET
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 * * * *'  # Executa a cada hora
+
+jobs:
+  build:
+    name: Build do Projeto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fazer checkout do código
+        uses: actions/checkout@v2
+
+      - name: Configurar o .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Criar aplicação web
+        run: dotnet new webapp -n github4women
+
+      - name: Restaurar dependências
+        run: dotnet restore github4women/github4women.csproj
+
+      - name: Construir a aplicação
+        run: dotnet build github4women/github4women.csproj --configuration Release
+
+      - name: Executar testes
+        run: dotnet test github4women/github4women.csproj --configuration Release
+
+  publish:
+    name: Verificar Qualidade
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fazer checkout do código
+        uses: actions/checkout@v2
+
+      - name: Configurar o .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restaurar dependências antes de formatar
+        run: dotnet restore github4women/github4women.csproj
+
+      - name: Instalar o dotnet-format
+        run: dotnet tool install --global dotnet-format
+
+      - name: Formatar o código
+        run: dotnet format github4women/github4women.csproj --verify-no-changes
+
+      - name: Limpar arquivos temporários
+        run: rm -rf github4women/bin github4women/obj
+
+      - name: Preparar aplicação para deploy
+        run: dotnet publish github4women/github4women.csproj --configuration Release --output ./publish
