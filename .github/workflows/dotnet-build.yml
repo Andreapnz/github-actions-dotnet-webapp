@@ -1,11 +1,11 @@
-name: Build/Teste para Projeto .NET
+name: Workflow de Build/Teste para Projeto .NET
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 * * * *'  # Executa a cada hora
+    - cron: '0 * * * *'  
 
 jobs:
   build:
@@ -21,9 +21,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Criar aplicação web
-        run: dotnet new webapp -n github4women
-
       - name: Restaurar dependências
         run: dotnet restore github4women/github4women.csproj
 
@@ -34,7 +31,7 @@ jobs:
         run: dotnet test github4women/github4women.csproj --configuration Release
 
   publish:
-    name: Verificar Qualidade
+    name:  Verificar Qualidade
     needs: build
     runs-on: ubuntu-latest
 
@@ -45,7 +42,7 @@ jobs:
       - name: Configurar o .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x'  
 
       - name: Restaurar dependências antes de formatar
         run: dotnet restore github4women/github4women.csproj
